@@ -1,4 +1,4 @@
-import Product from '../models/Product.js';
+import Product from '../models/product.model.js';
 import mongoose from "mongoose";
 
 // @desc    Get all products

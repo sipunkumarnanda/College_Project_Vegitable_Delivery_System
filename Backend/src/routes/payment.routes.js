@@ -1,9 +1,9 @@
 import express from 'express';
-import { protect } from '../middlewares/authMiddleware.js';
+import { protect } from '../middlewares/auth.middleware.js';
 import {
   createRazorpayOrder,
   verifyPayment,
-} from '../controllers/paymentController.js';
+} from '../controllers/payment.controller.js';
 
 const router = express.Router();
 

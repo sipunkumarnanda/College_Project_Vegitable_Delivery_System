@@ -5,9 +5,9 @@ import {
   createProduct,
   updateProduct,
   deleteProduct,
-} from '../controllers/productController.js';
-import { protect } from '../middlewares/authMiddleware.js';
-import { isVendor } from '../middlewares/roleMiddleware.js';
+} from '../controllers/product.controller.js';
+import { protect } from '../middlewares/auth.middleware.js';
+import { isVendor } from '../middlewares/role.middleware.js';
 
 const router = express.Router();
 

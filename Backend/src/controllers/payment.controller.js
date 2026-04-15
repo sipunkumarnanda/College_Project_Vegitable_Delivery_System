@@ -6,8 +6,8 @@ import Razorpay from "razorpay";
 import crypto from "crypto";
 import mongoose from "mongoose";
 
-import Order from "../models/Order.js";
-import Payment from "../models/Payment.js";
+import Order from "../models/order.model.js";
+import Payment from "../models/payment.model.js";
 
 // 🔹 Check env
 if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {

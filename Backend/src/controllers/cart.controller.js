@@ -1,7 +1,7 @@
 
 import mongoose from "mongoose";
-import Cart from "../models/Cart.js";
-import Product from "../models/Product.js";
+import Cart from "../models/cart.model.js";
+import Product from "../models/product.model.js";
 
 // @desc    Get logged-in user's cart
 // @route   GET /api/cart
