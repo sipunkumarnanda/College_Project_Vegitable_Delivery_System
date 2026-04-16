@@ -11,17 +11,14 @@ const checkVendor = (req, res, next) => {
 };
 
 // GET /api/vendor/products
-export const getVendorProducts = [
-  checkVendor,
-  async (req, res) => {
-    try {
-      const products = await Product.find({ vendor: req.user._id });
-      res.json({ success: true, data: products });
-    } catch (err) {
-      res.status(500).json({ success: false, message: 'Server error' });
-    }
+export const getVendorProducts = async (req, res) => {
+  try {
+    const products = await Product.find({ vendor: req.user._id });
+    res.json({ success: true, data: products });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error' });
   }
-];
+};
 
 // GET /api/vendor/orders
 
