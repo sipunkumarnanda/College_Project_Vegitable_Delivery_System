@@ -6,7 +6,7 @@ import { vendorApproved } from '../middlewares/vendor.middleware.js';
 
 const router = express.Router();
 
-// All routes are protected
+// All routes are protected and require the vendor to be approved
 router.get('/products', protect, vendorApproved, ...getVendorProducts);
 router.get('/orders', protect, vendorApproved, getVendorOrders);
 router.put("/orders/:id/status", protect, vendorApproved, updateOrderStatus);
