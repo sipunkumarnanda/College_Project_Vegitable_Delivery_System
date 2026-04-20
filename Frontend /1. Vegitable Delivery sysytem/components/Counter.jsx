@@ -1,28 +1,39 @@
-'use client'
-import { addToCart, removeFromCart } from "@/lib/features/cart/cartSlice";
-import { useDispatch, useSelector } from "react-redux";
 
-const Counter = ({ productId }) => {
+'use client';
 
-    const { cartItems } = useSelector(state => state.cart);
+const Counter = ({ quantity, setQuantity }) => {
 
-    const dispatch = useDispatch();
+const increase = () => {
+setQuantity(prev => prev + 1);
+};
 
-    const addToCartHandler = () => {
-        dispatch(addToCart({ productId }))
-    }
+const decrease = () => {
+if (quantity <= 1) return;
+setQuantity(prev => prev - 1);
+};
 
-    const removeFromCartHandler = () => {
-        dispatch(removeFromCart({ productId }))
-    }
+return ( <div className="flex items-center gap-3 mt-4">
 
-    return (
-        <div className="inline-flex items-center gap-1 sm:gap-3 px-3 py-1 rounded border border-slate-200 max-sm:text-sm text-slate-600">
-            <button onClick={removeFromCartHandler} className="p-1 select-none">-</button>
-            <p className="p-1">{cartItems[productId]}</p>
-            <button onClick={addToCartHandler} className="p-1 select-none">+</button>
-        </div>
-    )
-}
+  <button
+    onClick={decrease}
+    className="px-3 py-1 bg-gray-200 rounded"
+  >
+    -
+  </button>
 
-export default Counter
+  <span className="text-lg font-semibold min-w-[20px] text-center">
+    {quantity}
+  </span>
+
+  <button
+    onClick={increase}
+    className="px-3 py-1 bg-gray-200 rounded"
+  >
+    +
+  </button>
+
+</div>
+);
+};
+
+export default Counter;

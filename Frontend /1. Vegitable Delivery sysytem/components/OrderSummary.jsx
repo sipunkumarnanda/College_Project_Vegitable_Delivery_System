@@ -47,7 +47,22 @@ const OrderSummary = ({ totalPrice, items }) => {
                 {
                     selectedAddress ? (
                         <div className='flex gap-2 items-center'>
-                            <p>{selectedAddress.name}, {selectedAddress.city}, {selectedAddress.state}, {selectedAddress.zip}</p>
+                            <div className="text-sm">
+  <p className="font-medium">
+    {selectedAddress.fullName} ({selectedAddress.phone})
+  </p>
+
+  <p>
+    {selectedAddress.street}
+    {selectedAddress.landmark && `, ${selectedAddress.landmark}`}
+  </p>
+
+  <p>
+    {selectedAddress.city}, {selectedAddress.state} - {selectedAddress.zip}
+  </p>
+
+  <p>{selectedAddress.country}</p>
+</div>
                             <SquarePenIcon onClick={() => setSelectedAddress(null)} className='cursor-pointer' size={18} />
                         </div>
                     ) : (

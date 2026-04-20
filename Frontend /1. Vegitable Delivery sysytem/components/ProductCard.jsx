@@ -1,34 +1,125 @@
-'use client'
-import { StarIcon } from 'lucide-react'
-import Image from 'next/image'
-import Link from 'next/link'
-import React from 'react'
+
+
+'use client';
+
+import { StarIcon } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useRouter } from 'next/navigation';
+import { addToCart } from '@/lib/features/cart/cartSlice';
+import toast from 'react-hot-toast';
 
 const ProductCard = ({ product }) => {
 
-    const currency = process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || '₹'
+const currency = process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || '₹';
 
-    // calculate the average rating of the product
-    const rating = Math.round(product.rating.reduce((acc, curr) => acc + curr.rating, 0) / product.rating.length);
+const dispatch = useDispatch();
+const router = useRouter();
+const { isLoggedIn } = useSelector((state) => state.auth);
 
-    return (
-        <Link href={`/product/${product.id}`} className=' group max-xl:mx-auto'>
-            <div className='bg-[#F5F5F5] h-40  sm:w-60 sm:h-68 rounded-lg flex items-center justify-center'>
-                <Image width={500} height={500} className='max-h-30 sm:max-h-40 w-auto group-hover:scale-115 transition duration-300' src={product.images[0]} alt="" />
-            </div>
-            <div className='flex justify-between gap-3 text-sm text-slate-800 pt-2 max-w-60'>
-                <div>
-                    <p>{product.name}</p>
-                    <div className='flex'>
-                        {Array(5).fill('').map((_, index) => (
-                            <StarIcon key={index} size={14} className='text-transparent mt-0.5' fill={rating >= index + 1 ? "#00C950" : "#D1D5DB"} />
-                        ))}
-                    </div>
-                </div>
-                <p>{currency}{product.price}</p>
-            </div>
-        </Link>
-    )
-}
+const { items: cartItems = [], loading } = useSelector(
+(state) => state.cart
+);
 
-export default ProductCard
+if (!product) return null;
+
+const rating = 4;
+
+const isInCart = cartItems.some(
+(item) => item.product?._id === product._id
+);
+
+const handleCartClick = async (e) => {
+  e.preventDefault();
+
+  // 🔥 NOT LOGGED IN → toast + redirect
+  if (!isLoggedIn) {
+    toast.error("Please login to add items to cart");
+    router.push("/login");
+    return;
+  }
+
+  // ✅ already in cart
+  if (isInCart) {
+    router.push('/cart');
+    return;
+  }
+
+  // ✅ add to cart
+  try {
+    await dispatch(
+      addToCart({
+        productId: product._id,
+        quantity: 1
+      })
+    ).unwrap();
+
+    // ✅ success toast
+    toast.success("Added to cart");
+  } catch (err) {
+    toast.error("Failed to add to cart");
+  }
+};
+
+return ( <div className="w-full max-w-[220px] mx-auto border rounded-xl p-3 bg-white shadow-sm hover:shadow-md transition">
+
+  {/* CLICKABLE AREA */}
+  <Link href={`/product/${product._id}`} className="block">
+
+    {/* IMAGE FIX */}
+    <div className="w-full h-40 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
+      <Image
+        src={product.image || "/placeholder.png"}
+        alt={product.name}
+        width={200}
+        height={150}
+        className="object-contain w-full h-full"
+      />
+    </div>
+
+    {/* CONTENT */}
+    <div className="mt-3">
+
+      <p className="text-sm font-medium text-slate-800 truncate">
+        {product.name}
+      </p>
+
+      <div className="flex items-center gap-1 mt-1">
+        {Array(5).fill('').map((_, index) => (
+          <StarIcon
+            key={index}
+            size={14}
+            fill={rating >= index + 1 ? "#00C950" : "#D1D5DB"}
+          />
+        ))}
+      </div>
+
+      <p className="mt-1 font-semibold text-green-600">
+        {currency}{product.price}
+      </p>
+
+    </div>
+
+  </Link>
+
+  {/* BUTTON */}
+  <button
+    onClick={handleCartClick}
+    disabled={loading}
+    className={`mt-3 w-full py-2 rounded text-white transition ${
+      isInCart
+        ? "bg-blue-500 hover:bg-blue-600"
+        : "bg-green-600 hover:bg-green-700"
+    }`}
+  >
+    {isInCart ? "Go to Cart" : loading ? "Adding..." : "Add to Cart"}
+  </button>
+
+</div>
+
+);
+};
+
+export default ProductCard;

@@ -1,55 +1,112 @@
-'use client'
-import { XIcon } from "lucide-react"
-import { useState } from "react"
-import { toast } from "react-hot-toast"
 
-const AddressModal = ({ setShowAddressModal }) => {
+'use client';
 
-    const [address, setAddress] = useState({
-        name: '',
-        email: '',
-        street: '',
-        city: '',
-        state: '',
-        zip: '',
-        country: '',
-        phone: ''
-    })
+import { XIcon } from "lucide-react";
+import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
+import api from "@/lib/api";
+import { useDispatch } from "react-redux";
+import { setAddresses } from "@/lib/features/address/addressSlice";
 
-    const handleAddressChange = (e) => {
-        setAddress({
-            ...address,
-            [e.target.name]: e.target.value
-        })
+const AddressModal = ({ setShowAddressModal, editData, editIndex }) => {
+
+  const dispatch = useDispatch();
+  const isEdit = !!editData;
+
+  const [address, setAddress] = useState({
+    fullName: '',
+    phone: '',
+    street: '',
+    city: '',
+    state: '',
+    zip: '',
+    country: '',
+    landmark: ''
+  });
+
+  // ✅ Prefill for edit
+  useEffect(() => {
+    if (editData) {
+      setAddress(editData);
     }
+  }, [editData]);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault()
+  const handleChange = (e) => {
+    setAddress({
+      ...address,
+      [e.target.name]: e.target.value
+    });
+  };
 
-        setShowAddressModal(false)
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      let res;
+
+      if (isEdit) {
+        res = await api.put(`/address/${editIndex}`, address);
+        toast.success("Address updated");
+      } else {
+        res = await api.post("/address", address);
+        toast.success("Address added");
+      }
+
+      dispatch(setAddresses(res.data.data));
+      setShowAddressModal(false);
+
+    } catch (err) {
+      toast.error("Something went wrong");
     }
+  };
 
-    return (
-        <form onSubmit={e => toast.promise(handleSubmit(e), { loading: 'Adding Address...' })} className="fixed inset-0 z-50 bg-white/60 backdrop-blur h-screen flex items-center justify-center">
-            <div className="flex flex-col gap-5 text-slate-700 w-full max-w-sm mx-6">
-                <h2 className="text-3xl ">Add New <span className="font-semibold">Address</span></h2>
-                <input name="name" onChange={handleAddressChange} value={address.name} className="p-2 px-4 outline-none border border-slate-200 rounded w-full" type="text" placeholder="Enter your name" required />
-                <input name="email" onChange={handleAddressChange} value={address.email} className="p-2 px-4 outline-none border border-slate-200 rounded w-full" type="email" placeholder="Email address" required />
-                <input name="street" onChange={handleAddressChange} value={address.street} className="p-2 px-4 outline-none border border-slate-200 rounded w-full" type="text" placeholder="Street" required />
-                <div className="flex gap-4">
-                    <input name="city" onChange={handleAddressChange} value={address.city} className="p-2 px-4 outline-none border border-slate-200 rounded w-full" type="text" placeholder="City" required />
-                    <input name="state" onChange={handleAddressChange} value={address.state} className="p-2 px-4 outline-none border border-slate-200 rounded w-full" type="text" placeholder="State" required />
-                </div>
-                <div className="flex gap-4">
-                    <input name="zip" onChange={handleAddressChange} value={address.zip} className="p-2 px-4 outline-none border border-slate-200 rounded w-full" type="number" placeholder="Zip code" required />
-                    <input name="country" onChange={handleAddressChange} value={address.country} className="p-2 px-4 outline-none border border-slate-200 rounded w-full" type="text" placeholder="Country" required />
-                </div>
-                <input name="phone" onChange={handleAddressChange} value={address.phone} className="p-2 px-4 outline-none border border-slate-200 rounded w-full" type="text" placeholder="Phone" required />
-                <button className="bg-slate-800 text-white text-sm font-medium py-2.5 rounded-md hover:bg-slate-900 active:scale-95 transition-all">SAVE ADDRESS</button>
-            </div>
-            <XIcon size={30} className="absolute top-5 right-5 text-slate-500 hover:text-slate-700 cursor-pointer" onClick={() => setShowAddressModal(false)} />
-        </form>
-    )
-}
+  return (
+    <form
+  onSubmit={handleSubmit}
+  className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
+  onClick={() => setShowAddressModal(false)} // 👈 outside click closes
+>
 
-export default AddressModal
+  {/* 🛑 STOP CLICK INSIDE */}
+  <div
+    className="bg-white p-6 rounded w-full max-w-md space-y-3"
+    onClick={(e) => e.stopPropagation()} // 👈 prevent closing
+  >
+
+    <h2 className="text-lg font-semibold">
+      {isEdit ? "Update Address" : "Add Address"}
+    </h2>
+
+    <input name="fullName" value={address.fullName} onChange={handleChange} placeholder="Full Name" className="border p-2 w-full" required />
+    <input name="phone" value={address.phone} onChange={handleChange} placeholder="Phone" className="border p-2 w-full" required />
+    <input name="street" value={address.street} onChange={handleChange} placeholder="Street" className="border p-2 w-full" required />
+
+    <div className="flex gap-2">
+      <input name="city" value={address.city} onChange={handleChange} placeholder="City" className="border p-2 w-full" required />
+      <input name="state" value={address.state} onChange={handleChange} placeholder="State" className="border p-2 w-full" required />
+    </div>
+
+    <div className="flex gap-2">
+      <input name="zip" value={address.zip} onChange={handleChange} placeholder="Zip" className="border p-2 w-full" required />
+      <input name="country" value={address.country} onChange={handleChange} placeholder="Country" className="border p-2 w-full" required />
+    </div>
+
+    <input name="landmark" value={address.landmark} onChange={handleChange} placeholder="Landmark" className="border p-2 w-full" />
+
+    <button className="bg-green-600 text-white w-full py-2 rounded">
+      {isEdit ? "Update Address" : "Save Address"}
+    </button>
+
+  </div>
+
+  {/* ❌ CLOSE ICON */}
+  <XIcon
+    size={28}
+    className="absolute top-5 right-5 cursor-pointer"
+    onClick={() => setShowAddressModal(false)}
+  />
+</form>
+  );
+};
+
+export default AddressModal;

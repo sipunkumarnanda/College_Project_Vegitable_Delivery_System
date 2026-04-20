@@ -1,33 +1,32 @@
-import gs_logo from "./gs_logo.jpg"
-import happy_store from "./happy_store.webp"
-import upload_area from "./upload_area.svg"
-import hero_model_img from "./hero_model_img.png"
-import hero_product_img1 from "./hero_product_img1.png"
-import hero_product_img2 from "./hero_product_img2.png"
-import product_img1 from "./product_img1.jpg"
-import product_img2 from "./product_img1.jpg"
-import product_img3 from "./product_img3.jpg"
-import product_img4 from "./product_img4.jpg"
-import product_img5 from "./product_img5.jpg"
-import product_img6 from "./product_img6.avif"
-import product_img7 from "./product_img7.avif"
-import product_img8 from "./product_img8.avif"
-import product_img9 from "./product_img9.avif"
-import product_img10 from "./product_img10.avif"
-import product_img11 from "./product_img11.avif"
-import product_img12 from "./product_img12.avif"
+
+import product_img6 from "./product_img6.avif";
+import product_img7 from "./product_img7.avif";
+import product_img8 from "./product_img8.avif";
+import product_img9 from "./product_img9.avif";
+import product_img10 from "./product_img10.avif";
+import product_img11 from "./product_img11.avif";
+import product_img12 from "./product_img12.avif";
 import { ClockFadingIcon, HeadsetIcon, SendIcon } from "lucide-react";
-import profile_pic1 from "./profile_pic1.jpg"
-import profile_pic2 from "./profile_pic2.jpg"
-import profile_pic3 from "./profile_pic3.jpg"
-import vegitable_basket from "./vegitable_Basket.png"
+
+// Placeholder images for profiles and store logos (use available assets or replace with actual ones)
+const profile_pic1 = product_img10;
+const profile_pic2 = product_img11;
+const profile_pic3 = product_img12;
+const gs_logo = product_img6;
+const happy_store = product_img7;
+const vegitable_basket = product_img8;
 
 export const assets = {
-    upload_area, hero_model_img,
-    hero_product_img1, hero_product_img2, gs_logo,
-    product_img1, product_img2, product_img3, product_img4, product_img5, product_img6,
-    product_img7, product_img8, product_img9, product_img10, product_img11, product_img12,vegitable_basket
-}
+  gs_logo,
+  product_img6,
+  product_img7,
+  product_img8,
+  product_img9,
+  product_img10,
+  product_img11,
+  product_img12,
+  vegitable_basket
+};
 
 export const categories = [
   "Leafy Greens",
@@ -141,7 +140,7 @@ export const productDummyData = [
       "Hand-picked spinach leaves, washed and packed fresh. Tender greens perfect for saag, dals, and soups. Grown by local farmers and delivered within 24 hours to keep maximum freshness.",
     mrp: 40,
     price: 29,
-    images: [product_img1, product_img2],
+    images: [product_img6, product_img7],
     category: "Leafy Greens",
     storeId: "store_1",
     inStock: true,
@@ -157,7 +156,7 @@ export const productDummyData = [
       "Crisp, sweet organic carrots ideal for salads, juicing, and cooking. Grown without harmful pesticides and carefully packed to avoid bruising during delivery.",
     mrp: 80,
     price: 69,
-    images: [product_img3],
+    images: [product_img8],
     storeId: "store_1",
     inStock: true,
     store: dummyStoreData,
@@ -173,7 +172,7 @@ export const productDummyData = [
       "Juicy vine-ripened tomatoes with rich flavor — perfect for curries, chutneys, and salads. Packed gently to maintain their natural freshness and flavor.",
     mrp: 60,
     price: 49,
-    images: [product_img4],
+    images: [product_img9],
     storeId: "store_1",
     inStock: true,
     store: dummyStoreData,
@@ -189,7 +188,7 @@ export const productDummyData = [
       "Premium grade potatoes — versatile and great for aloo sabzi, fries, and daily cooking. Cleaned and sorted for consistent quality.",
     mrp: 120,
     price: 99,
-    images: [product_img5],
+    images: [product_img10],
     storeId: "store_1",
     inStock: true,
     store: dummyStoreData,
@@ -205,7 +204,7 @@ export const productDummyData = [
       "Fresh onions with strong aroma and long shelf life. Perfect for Indian gravies, curries, and pickles. Sourced from trusted local farms.",
     mrp: 60,
     price: 49,
-    images: [product_img6],
+    images: [product_img11],
     storeId: "store_1",
     inStock: true,
     store: dummyStoreData,
@@ -221,7 +220,7 @@ export const productDummyData = [
       "Ready-to-eat salad mix with lettuce, baby spinach, and rocket leaves. Freshly washed, chilled, and perfect for healthy meals or sandwiches.",
     mrp: 99,
     price: 79,
-    images: [product_img7],
+    images: [product_img12],
     storeId: "store_1",
     inStock: true,
     store: dummyStoreData,
@@ -237,7 +236,7 @@ export const productDummyData = [
       "Fresh coriander leaves — aromatic and hand-picked daily. Ideal for garnishing, chutneys, and seasoning Indian dishes. Farm-fresh and naturally grown.",
     mrp: 30,
     price: 24,
-    images: [product_img8],
+    images: [product_img6],
     storeId: "store_1",
     inStock: true,
     store: dummyStoreData,
@@ -253,7 +252,7 @@ export const productDummyData = [
       "Crisp, hydrating cucumbers perfect for salads, sandwiches, and raita. Delivered fresh from local organic farms every morning.",
     mrp: 50,
     price: 39,
-    images: [product_img9],
+    images: [product_img7],
     storeId: "store_1",
     inStock: true,
     store: dummyStoreData,
@@ -269,7 +268,7 @@ export const productDummyData = [
       "Assorted bell peppers in green, red, and yellow — crunchy and flavorful. Great for stir-fries, salads, or roasted dishes.",
     mrp: 120,
     price: 99,
-    images: [product_img10],
+    images: [product_img8],
     storeId: "store_1",
     inStock: true,
     store: dummyStoreData,
@@ -285,7 +284,7 @@ export const productDummyData = [
       "Aromatic ginger with rich flavor and freshness — perfect for Indian curries, tea, and traditional remedies. Carefully cleaned and packed.",
     mrp: 70,
     price: 55,
-    images: [product_img11],
+    images: [product_img9],
     storeId: "store_1",
     inStock: true,
     store: dummyStoreData,
@@ -301,7 +300,7 @@ export const productDummyData = [
       "Sweet, ripe bananas from Kerala farms. Perfect for breakfast, milkshakes, and snacks. Handled with care to avoid bruising.",
     mrp: 60,
     price: 49,
-    images: [product_img12],
+    images: [product_img10],
     storeId: "store_1",
     inStock: true,
     store: dummyStoreData,
@@ -317,7 +316,7 @@ export const productDummyData = [
       "Farm-fresh cauliflower with tightly packed florets and natural color. Ideal for gobi paratha, curries, and sabzi. Delivered pesticide-free.",
     mrp: 55,
     price: 44,
-    images: [product_img1],
+    images: [product_img11],
     storeId: "store_1",
     inStock: true,
     store: dummyStoreData,
