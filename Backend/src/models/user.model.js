@@ -1,4 +1,23 @@
+
 import mongoose from 'mongoose';
+
+const addressSchema = new mongoose.Schema({
+  fullName: { type: String, required: true },
+  phone: { type: String, required: true },
+
+  street: { type: String, required: true },
+  city: { type: String, required: true },
+  state: { type: String, required: true },
+  zip: { type: String, required: true },
+  country: { type: String, required: true },
+
+  landmark: { type: String },
+
+  isDefault: {
+    type: Boolean,
+    default: false
+  }
+}, { _id: false });
 
 const userSchema = new mongoose.Schema(
   {
@@ -31,7 +50,11 @@ const userSchema = new mongoose.Schema(
     isApproved: {
       type: Boolean,
       default: false,
-    }
+    },
+
+    // ✅ ADD THIS
+    addresses: [addressSchema]
+
   },
   {
     timestamps: true,

@@ -1,3 +1,4 @@
+
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -8,11 +9,18 @@ import orderRoutes from './routes/order.routes.js';
 import paymentRoutes from './routes/payment.routes.js';
 import vendorRoutes from './routes/vendor.routes.js';
 import adminRoutes from './routes/admin.routes.js';
+import addressRoutes from './routes/address.routes.js';
+
 
 const app = express();
 
+// 🔥 FIXED CORS CONFIG
+app.use(cors({
+  origin: "http://localhost:3000", // frontend URL
+  credentials: true,               // VERY IMPORTANT
+}));
+
 // Middleware
-app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 
@@ -24,9 +32,10 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/vendor', vendorRoutes);
 app.use('/api/admin', adminRoutes);
+app.use("/api/address", addressRoutes);
 
 app.get("/", (req, res) => {
-	res.send("Server is running 🚀");
+  res.send("Server is running 🚀");
 });
 
 export default app;

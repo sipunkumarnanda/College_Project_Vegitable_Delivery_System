@@ -2,18 +2,8 @@ import User from '../models/user.model.js';
 import Product from '../models/product.model.js';
 import Order from '../models/order.model.js';
 
-// Middleware to check admin role
-const checkAdmin = (req, res, next) => {
-  if (!req.user || req.user.role !== 'admin') {
-    return res.status(403).json({ success: false, message: 'Access denied. Admins only.' });
-  }
-  next();
-};
-
 // 1️⃣ GET /api/admin/stats
-export const getStats = [
-  checkAdmin,
-  async (req, res) => {
+export const getStats = async (req, res) => {
     try {
       const [totalProducts, totalOrders, totalVendors, orders] = await Promise.all([
         Product.countDocuments(),
@@ -29,13 +19,10 @@ export const getStats = [
     } catch (err) {
       res.status(500).json({ success: false, message: 'Server error' });
     }
-  }
-];
+  };
 
 // 2️⃣ GET /api/admin/orders-stats
-export const getOrdersStats = [
-  checkAdmin,
-  async (req, res) => {
+export const getOrdersStats = async (req, res) => {
     try {
       const stats = await Order.aggregate([
         {
@@ -51,26 +38,20 @@ export const getOrdersStats = [
     } catch (err) {
       res.status(500).json({ success: false, message: 'Server error' });
     }
-  }
-];
+  };
 
 // 3️⃣ GET /api/admin/vendors
-export const getVendors = [
-  checkAdmin,
-  async (req, res) => {
+export const getVendors = async (req, res) => {
     try {
       const vendors = await User.find({ role: 'vendor' }, 'name email isActive isApproved createdAt');
       res.status(200).json({ success: true, data: vendors });
     } catch (err) {
       res.status(500).json({ success: false, message: 'Server error' });
     }
-  }
-];
+  };
 
 // 4️⃣ PUT /api/admin/vendors/:id/toggle
-export const toggleVendorActive = [
-  checkAdmin,
-  async (req, res) => {
+export const toggleVendorActive = async (req, res) => {
     try {
       const vendor = await User.findOne({ _id: req.params.id, role: 'vendor' });
       if (!vendor) return res.status(404).json({ success: false, message: 'Vendor not found' });
@@ -80,26 +61,20 @@ export const toggleVendorActive = [
     } catch (err) {
       res.status(500).json({ success: false, message: 'Server error' });
     }
-  }
-];
+  };
 
 // 5️⃣ GET /api/admin/vendors/pending
-export const getPendingVendors = [
-  checkAdmin,
-  async (req, res) => {
+export const getPendingVendors = async (req, res) => {
     try {
       const pending = await User.find({ role: 'vendor', isApproved: false }, 'name email isActive isApproved createdAt');
       res.status(200).json({ success: true, data: pending });
     } catch (err) {
       res.status(500).json({ success: false, message: 'Server error' });
     }
-  }
-];
+  };
 
 // 6️⃣ PUT /api/admin/vendors/:id/approve
-export const approveVendor = [
-  checkAdmin,
-  async (req, res) => {
+export const approveVendor = async (req, res) => {
     try {
       const vendor = await User.findOne({ _id: req.params.id, role: 'vendor' });
       if (!vendor) return res.status(404).json({ success: false, message: 'Vendor not found' });
@@ -109,13 +84,10 @@ export const approveVendor = [
     } catch (err) {
       res.status(500).json({ success: false, message: 'Server error' });
     }
-  }
-];
+  };
 
 // 7️⃣ PUT /api/admin/vendors/:id/reject
-export const rejectVendor = [
-  checkAdmin,
-  async (req, res) => {
+export const rejectVendor = async (req, res) => {
     try {
       const vendor = await User.findOne({ _id: req.params.id, role: 'vendor' });
       if (!vendor) return res.status(404).json({ success: false, message: 'Vendor not found' });
@@ -125,13 +97,10 @@ export const rejectVendor = [
     } catch (err) {
       res.status(500).json({ success: false, message: 'Server error' });
     }
-  }
-];
+  };
 
 // 8️⃣ GET /api/admin/orders
-export const getAllOrders = [
-  checkAdmin,
-  async (req, res) => {
+export const getAllOrders = async (req, res) => {
     try {
       const orders = await Order.find()
         .populate('user', 'name email')
@@ -140,5 +109,4 @@ export const getAllOrders = [
     } catch (err) {
       res.status(500).json({ success: false, message: 'Server error' });
     }
-  }
-];
+  };

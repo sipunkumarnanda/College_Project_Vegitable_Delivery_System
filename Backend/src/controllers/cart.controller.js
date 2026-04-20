@@ -156,3 +156,64 @@ export const removeFromCart = async (req, res) => {
     res.status(500).json({ message: "Server Error" });
   }
 };
+
+
+
+export const updateCartQuantity = async (req, res) => {
+try {
+const { productId, quantity } = req.body;
+const qty = Number(quantity);
+// 🔹 Validate productId
+if (!mongoose.Types.ObjectId.isValid(productId)) {
+  return res.status(400).json({ message: "Invalid product ID" });
+}
+
+// 🔹 Validate quantity
+if (qty < 1) {
+  return res.status(400).json({ message: "Quantity must be at least 1" });
+}
+
+// 🔹 Check product exists
+const product = await Product.findById(productId);
+if (!product) {
+  return res.status(404).json({ message: "Product not found" });
+}
+
+// 🔹 Check stock
+if (qty > product.stock) {
+  return res.status(400).json({
+    message: `Only ${product.stock} items available`,
+  });
+}
+
+const cart = await Cart.findOne({ user: req.user.id });
+
+if (!cart) {
+  return res.status(404).json({ message: "Cart not found" });
+}
+
+const itemIndex = cart.items.findIndex(
+  (item) => item.product.toString() === productId
+);
+
+if (itemIndex === -1) {
+  return res.status(400).json({ message: "Item not in cart" });
+}
+
+// 🔥 Update quantity
+cart.items[itemIndex].quantity = qty;
+
+await cart.save();
+
+await cart.populate("items.product", "name price image stock");
+
+res.status(200).json({
+  success: true,
+  data: cart,
+});
+
+} catch (error) {
+console.error("Error updating cart:", error);
+res.status(500).json({ message: "Server Error" });
+}
+};
