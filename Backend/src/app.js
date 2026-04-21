@@ -10,6 +10,7 @@ import paymentRoutes from './routes/payment.routes.js';
 import vendorRoutes from './routes/vendor.routes.js';
 import adminRoutes from './routes/admin.routes.js';
 import addressRoutes from './routes/address.routes.js';
+import reviewRoutes from "./routes/review.routes.js";
 
 
 const app = express();
@@ -33,6 +34,7 @@ app.use('/api/payment', paymentRoutes);
 app.use('/api/vendor', vendorRoutes);
 app.use('/api/admin', adminRoutes);
 app.use("/api/address", addressRoutes);
+app.use("/api/reviews", reviewRoutes);
 
 app.get("/", (req, res) => {
   res.send("Server is running 🚀");
