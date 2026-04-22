@@ -12,13 +12,24 @@ import adminRoutes from './routes/admin.routes.js';
 import addressRoutes from './routes/address.routes.js';
 import reviewRoutes from "./routes/review.routes.js";
 
+const ipv6 = process.env.IPV6;
+
 
 const app = express();
 
 // 🔥 FIXED CORS CONFIG
+// app.use(cors({
+//   origin: "http://localhost:3000", // frontend URL
+//   credentials: true,               // VERY IMPORTANT
+// }));
+
+// ✅ ALLOW BOTH IPv4 AND IPv6 LOCALHOST
 app.use(cors({
-  origin: "http://localhost:3000", // frontend URL
-  credentials: true,               // VERY IMPORTANT
+  origin: [
+    "http://localhost:3000",
+    `http://[${ipv6}]:3000`
+  ],
+  credentials: true
 }));
 
 // Middleware

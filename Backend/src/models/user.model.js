@@ -19,24 +19,53 @@ const addressSchema = new mongoose.Schema({
   }
 }, { _id: false });
 
+
+// 🔥 NEW: Vendor / Store Schema
+const storeSchema = new mongoose.Schema({
+  name: { type: String },
+  username: { type: String, unique: true },
+  description: { type: String },
+
+  contact: { type: String },
+  address: { type: String },
+  pincode: { type: String },
+
+  location: {
+    lat: Number,
+    lng: Number
+  },
+
+  image: { type: String },
+
+  status: {
+    type: String,
+    enum: ['pending', 'approved', 'rejected'],
+    default: 'pending'
+  }
+}, { _id: false });
+
+
 const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, 'Name is required'],
+      required: true,
       trim: true,
     },
+
     email: {
       type: String,
-      required: [true, 'Email is required'],
+      required: true,
       unique: true,
       lowercase: true,
       trim: true,
     },
+
     password: {
       type: String,
-      required: [true, 'Password is required'],
+      required: true,
     },
+
     role: {
       type: String,
       enum: ['user', 'vendor', 'admin'],
@@ -47,13 +76,17 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+
     isApproved: {
       type: Boolean,
       default: false,
     },
 
-    // ✅ ADD THIS
-    addresses: [addressSchema]
+    // ✅ addresses (already good)
+    addresses: [addressSchema],
+
+    // 🔥 ADD THIS
+    store: storeSchema
 
   },
   {

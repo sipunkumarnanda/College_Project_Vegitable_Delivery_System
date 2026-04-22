@@ -1,33 +1,52 @@
 import Product from '../models/product.model.js';
 import mongoose from "mongoose";
+import uploadFile from "../services/storage.service.js";
 
 // @desc    Get all products
 // @route   GET /api/products
 // @access  Public
 export const getProducts = async (req, res) => {
   try {
-    const { category, page = 1, limit = 10 } = req.query;
+    const { category, page, limit } = req.query;
 
     const query = {};
     if (category) {
       query.category = category;
     }
 
-    const pageNumber = parseInt(page, 10);
-    const limitNumber = parseInt(limit, 10);
-    const skip = (pageNumber - 1) * limitNumber;
+    let products;
+    let total = await Product.countDocuments(query);
 
-    const products = await Product.find(query).skip(skip).limit(limitNumber);
-    const total = await Product.countDocuments(query);
+    // ✅ If pagination params exist → use pagination
+    if (page && limit) {
+      const pageNumber = parseInt(page, 10);
+      const limitNumber = parseInt(limit, 10);
+      const skip = (pageNumber - 1) * limitNumber;
+
+      products = await Product.find(query)
+        .skip(skip)
+        .limit(limitNumber);
+
+      return res.status(200).json({
+        success: true,
+        count: products.length,
+        page: pageNumber,
+        totalPages: Math.ceil(total / limitNumber),
+        totalProducts: total,
+        data: products,
+      });
+    }
+
+    // ✅ No pagination → return all products
+    products = await Product.find(query);
 
     res.status(200).json({
       success: true,
       count: products.length,
-      page: pageNumber,
-      totalPages: Math.ceil(total / limitNumber),
       totalProducts: total,
       data: products,
     });
+
   } catch (error) {
     console.error('Error fetching products:', error);
     res.status(500).json({ message: 'Server Error' });
@@ -68,33 +87,42 @@ export const getProductById = async (req, res) => {
 
 export const createProduct = async (req, res) => {
   try {
-    const { name, price, category, description, image, stock } = req.body;
+    const { name, price, category, description, stock, image } = req.body;
 
-    // 🔹 Basic validation
     if (!name || !price) {
       return res.status(400).json({ message: "Name and price are required" });
     }
 
-    // 🔹 Normalize name (avoid "Tomato" vs "tomato")
     const formattedName = name.trim().toLowerCase();
 
-    // 🔹 Check duplicate for same vendor
     const existing = await Product.findOne({
       name: formattedName,
-      vendor: req.user.id,   // safer than _id from JWT
+      vendor: req.user.id,
     });
 
     if (existing) {
       return res.status(400).json({ message: "Product already exists" });
     }
 
-    // 🔹 Create product
+    let imageUrl = "";
+
+    // ✅ CASE 1: file upload
+    if (req.file) {
+      const uploaded = await uploadFile(req.file);
+      imageUrl = uploaded.url;
+    }
+
+    // ✅ CASE 2: image URL from input
+    else if (image) {
+      imageUrl = image;
+    }
+
     const product = await Product.create({
       name: formattedName,
       price,
       category,
       description,
-      image,
+      image: imageUrl,
       stock,
       vendor: req.user.id,
     });

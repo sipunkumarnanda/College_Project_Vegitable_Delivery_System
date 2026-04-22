@@ -3,6 +3,8 @@ import Product from '../models/product.model.js';
 import Order from '../models/order.model.js';
 import Review from '../models/review.model.js';
 import PDFDocument from "pdfkit";
+import User from "../models/user.model.js";
+import uploadFile from "../services/storage.service.js";
 
 // Middleware to check vendor role
 const checkVendor = (req, res, next) => {
@@ -11,6 +13,88 @@ const checkVendor = (req, res, next) => {
   }
   next();
 };
+
+
+// register
+export const registerVendor = async (req, res) => {
+try {
+const user = await User.findById(req.user.id);
+
+if (!user) {
+  return res.status(404).json({ message: "User not found" });
+}
+
+// ❌ already registered
+if (user.store?.name) {
+  return res.status(400).json({
+    message: "You already registered a store"
+  });
+}
+
+const {
+  name,
+  username,
+  description,
+  contact,
+  address,
+  pincode,
+  lat,
+  lng,
+  image // optional URL
+} = req.body;
+
+if (!name || !username || !contact || !address) {
+  return res.status(400).json({
+    message: "Please fill required fields"
+  });
+}
+
+let imageUrl = "";
+
+// ✅ CASE 1: file upload (ImageKit)
+if (req.file) {
+  const uploaded = await uploadFile(req.file);
+  imageUrl = uploaded.url;
+}
+
+// ✅ CASE 2: direct image URL
+else if (image) {
+  imageUrl = image;
+}
+
+// ✅ SAVE STORE
+user.store = {
+  name,
+  username,
+  description,
+  contact,
+  address,
+  pincode,
+  location: { lat, lng },
+  image: imageUrl,
+  status: "pending"
+};
+
+user.role = "vendor";
+user.isApproved = false;
+
+await user.save();
+
+res.status(200).json({
+  success: true,
+  status: "pending",
+  message: "Store submitted for approval",
+  data: user.store
+});
+
+} catch (error) {
+console.error("Vendor register error:", error);
+res.status(500).json({
+message: "Vendor registration failed"
+});
+}
+};
+
 
 // GET /api/vendor/products
 export const getVendorProducts = async (req, res) => {
@@ -25,52 +109,67 @@ export const getVendorProducts = async (req, res) => {
 // GET /api/vendor/orders
 
 export const getVendorOrders = async (req, res) => {
-  try {
-    // 🔐 Only vendor
-    if (req.user.role !== "vendor") {
-      return res.status(403).json({ message: "Access denied" });
-    }
+try {
+if (req.user.role !== "vendor") {
+return res.status(403).json({ message: "Access denied" });
+}
 
-    // 🔹 Get all orders + populate user + products
-    const orders = await Order.find()
-      .populate("user", "name email") // ✅ FIX (IMPORTANT)
-      .populate("items.product", "name price vendor")
-      .sort("-createdAt");
+const orders = await Order.find()
+  .populate("user", "name email")
+  .populate("items.product", "name price vendor")
+  .sort("-createdAt");
 
-    // 🔹 Filter orders for this vendor
-    const vendorOrders = orders
-      .map((order) => {
-        const vendorItems = order.items.filter(
-          (item) =>
-            item.product &&
-            item.product.vendor.toString() === req.user._id.toString()
-        );
+const vendorOrders = orders
+  .map((order) => {
 
-        // skip if no items for this vendor
-        if (vendorItems.length === 0) return null;
+    const vendorItems = order.items.filter(
+      (item) =>
+        item.vendor &&
+        item.vendor.toString() === req.user._id.toString()
+    );
 
-        return {
-          _id: order._id,
-          user: order.user, // ✅ now populated
-          items: vendorItems,
-          totalPrice: order.totalPrice,
-          status: order.status,
-          shippingAddress: order.shippingAddress,
-          createdAt: order.createdAt,
-        };
-      })
-      .filter(Boolean); // ✅ correct place
+    if (vendorItems.length === 0) return null;
 
-    res.status(200).json({
-      success: true,
-      data: vendorOrders,
-    });
+    // 🔥 FIXED CALCULATION (supports old + new)
+    const vendorTotal = vendorItems.reduce((sum, item) => {
 
-  } catch (error) {
-    console.error("Error fetching vendor orders:", error);
-    res.status(500).json({ message: "Server Error" });
-  }
+      const price =
+        item.price?.amount ||   // ✅ NEW SCHEMA
+        item.product?.price || // ✅ FALLBACK
+        0;
+
+      return sum + price * item.quantity;
+
+    }, 0);
+
+    return {
+      _id: order._id,
+      user: order.user,
+      items: vendorItems,
+      totalPrice: {
+        amount: vendorTotal,
+        currency: "INR",
+      },
+      status: order.status,
+      shippingAddress: order.shippingAddress,
+      createdAt: order.createdAt,
+    };
+  })
+  .filter(Boolean);
+
+res.status(200).json({
+  success: true,
+  data: vendorOrders,
+});
+
+} catch (error) {
+console.error("Error fetching vendor orders:", error);
+res.status(500).json({ message: "Server Error" });
+}
 };
+
+
+
 
 
 // PUT /api/orders/:id/status
