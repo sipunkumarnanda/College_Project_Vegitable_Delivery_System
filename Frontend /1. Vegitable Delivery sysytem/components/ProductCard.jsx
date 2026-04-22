@@ -1,27 +1,26 @@
 
-
 'use client';
 
 import { StarIcon } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import React from 'react';
+import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
 import { addToCart } from '@/lib/features/cart/cartSlice';
 import toast from 'react-hot-toast';
 
 const ProductCard = ({ product }) => {
-
 const currency = process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || '₹';
 
 const dispatch = useDispatch();
 const router = useRouter();
-const { isLoggedIn } = useSelector((state) => state.auth);
 
-const { items: cartItems = [], loading } = useSelector(
-(state) => state.cart
-);
+const { isLoggedIn } = useSelector((state) => state.auth);
+const { items: cartItems = [] } = useSelector((state) => state.cart);
+
+// ✅ LOCAL loading per product
+const [addingId, setAddingId] = useState(null);
 
 if (!product) return null;
 
@@ -32,56 +31,63 @@ const isInCart = cartItems.some(
 );
 
 const handleCartClick = async (e) => {
-  e.preventDefault();
+e.preventDefault();
 
-  // 🔥 NOT LOGGED IN → toast + redirect
-  if (!isLoggedIn) {
-    toast.error("Please login to add items to cart");
-    router.push("/login");
-    return;
-  }
+// 🔐 Not logged in
+if (!isLoggedIn) {
+  toast.error("Please login to add items to cart");
+  router.push("/login");
+  return;
+}
 
-  // ✅ already in cart
-  if (isInCart) {
-    router.push('/cart');
-    return;
-  }
+// 🔁 Already in cart
+if (isInCart) {
+  router.push('/cart');
+  return;
+}
 
-  // ✅ add to cart
-  try {
-    await dispatch(
-      addToCart({
-        productId: product._id,
-        quantity: 1
-      })
-    ).unwrap();
+try {
+  setAddingId(product._id); // ✅ only this card
 
-    // ✅ success toast
-    toast.success("Added to cart");
-  } catch (err) {
-    toast.error("Failed to add to cart");
-  }
+  await dispatch(
+    addToCart({
+      productId: product._id,
+      quantity: 1
+    })
+  ).unwrap();
+
+  toast.success("Added to cart");
+} catch (err) {
+  toast.error("Failed to add to cart");
+} finally {
+  setAddingId(null); // reset
+}
+
 };
+
+const imageUrl = product?.image || "";
 
 return ( <div className="w-full max-w-[220px] mx-auto border rounded-xl p-3 bg-white shadow-sm hover:shadow-md transition">
 
   {/* CLICKABLE AREA */}
   <Link href={`/product/${product._id}`} className="block">
 
-    {/* IMAGE FIX */}
-    <div className="w-full h-40 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
-      <Image
-        src={product.image || "/placeholder.png"}
-        alt={product.name}
-        width={200}
-        height={150}
-        className="object-contain w-full h-full"
-      />
+    {/* IMAGE */}
+    <div className="relative w-full h-40 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
+      {imageUrl ? (
+        <Image
+          src={imageUrl}
+          alt={product.name}
+          fill
+          className="object-contain"
+        />
+      ) : (
+        <span className="text-xs text-gray-400">No Image</span>
+      )}
     </div>
 
     {/* CONTENT */}
     <div className="mt-3">
-
       <p className="text-sm font-medium text-slate-800 truncate">
         {product.name}
       </p>
@@ -99,7 +105,6 @@ return ( <div className="w-full max-w-[220px] mx-auto border rounded-xl p-3 bg-w
       <p className="mt-1 font-semibold text-green-600">
         {currency}{product.price}
       </p>
-
     </div>
 
   </Link>
@@ -107,14 +112,18 @@ return ( <div className="w-full max-w-[220px] mx-auto border rounded-xl p-3 bg-w
   {/* BUTTON */}
   <button
     onClick={handleCartClick}
-    disabled={loading}
+    disabled={addingId === product._id}
     className={`mt-3 w-full py-2 rounded text-white transition ${
       isInCart
         ? "bg-blue-500 hover:bg-blue-600"
         : "bg-green-600 hover:bg-green-700"
     }`}
   >
-    {isInCart ? "Go to Cart" : loading ? "Adding..." : "Add to Cart"}
+    {isInCart
+      ? "Go to Cart"
+      : addingId === product._id
+      ? "Adding..."
+      : "Add to Cart"}
   </button>
 
 </div>

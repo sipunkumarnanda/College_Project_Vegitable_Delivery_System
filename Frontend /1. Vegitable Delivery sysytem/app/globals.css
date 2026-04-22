@@ -20,3 +20,19 @@
 .no-scrollbar::-webkit-scrollbar {
     display: none;
 }
+
+
+
+/* // */
+
+.label {
+  @apply block text-sm font-medium text-gray-700 mb-1;
+}
+
+.input {
+  @apply w-full px-4 py-3 border-2 border-gray-300 rounded-xl bg-white outline-none transition;
+}
+
+.input:focus {
+  @apply border-green-500 ring-2 ring-green-100;
+}
